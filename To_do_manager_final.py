@@ -42,3 +42,19 @@ class Task:
         # Create a task object from a dictionary here
         return Task(**data)
     
+    def __str__(self):
+        # String representation of a task
+        status = 'Completed' if self.completed else 'Not yet completed'
+        return f"{self.title} | Due: {self.due_data} | Priority: {self.priority} | Status: {status}"
+    
+# TaskManager class manages a list of tasks
+class TaskManager:
+    """Manages a list of tasks."""
+    def __init__(self, filename='tasks.json'):
+        self.filename = filename
+        self.tasks = self.load_tasks()
+
+    def validate_date(self, date_str):
+        # Validate date format as YYYY-MM-DD
+        return re.match(r"^\d{4}-\d{2}-\d{2}$", date_str) is not None
+    
