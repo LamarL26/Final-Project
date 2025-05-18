@@ -32,61 +32,60 @@ class Task:
             self.due_date = due_date
         if priority:
             self.priority = priority
-    
+
     def to_dict(self):
-    # Right here, convert the task to dictionary for saving to JSON
+        # Right here, convert the task to dictionary for saving to JSON
         return self.__dict__
 
     @staticmethod
     def from_dict(data):
         # Create a task object from a dictionary here
         return Task(**data)
-    
+
     def __str__(self):
         # String representation of a task
-        status = 'Completed' if self.completed else 'Not yet completed'
+        status = 'Completed' if self.completed else 'Incomplete'
         return f"{self.title} | Due: {self.due_date} | Priority: {self.priority} | Status: {status}"
-    
+
+
 # TaskManager class manages a list of tasks
 class TaskManager:
     """Manages a list of tasks."""
-    def __init__(self, filename='tasks.json'):
+    def __init__(self, filename="tasks.json"):
         self.filename = filename
         self.tasks = self.load_tasks()
 
     def validate_date(self, date_str):
         # Validate date format as YYYY-MM-DD
-        return re.match(r"^\d{4}-\d{2}-\d{2}$", date_str) is not None
-    
+        return re.match(r"^\d{2}-\d{2}-\d{4}$", date_str) is not None
+
     def load_tasks(self):
         # Load tasks from a JSON file
         try:
-            with open(self.filename, 'r') as f:
+            with open(self.filename, "r") as f:
                 return [Task.from_dict(task) for task in json.load(f)]
         except FileNotFoundError:
             return []
         except json.JSONDecodeError:
             print("Error: Could not decode JSON. Starting with an empty task list.")
             return []
-        
+
     def save_tasks(self):
         # Save tasks to a JSON file
-        with open(self.filename, 'w') as f:
+        with open(self.filename, "w") as f:
             json.dump([task.to_dict() for task in self.tasks], f, indent=4)
-        print("Tasks saved successfully.")
 
-    def add_task(self, title, description, due_date, priority):
-        # Add a new task to the list
+    def add_task(self):
+        # Add a new task based on user input
         try:
             title = input("Title: ").strip()
-            description = input("Description: ").strip()
-            due_date = input("Due date (YYYY-MM-DD): ").strip()
+            description = input("Description of the task: ").strip()
+            due_date = input("Due Date (MM-DD-YYYY): ").strip()
             while not self.validate_date(due_date):
-                print("Invalid date format. Please use YYYY-MM-DD.")
-                due_date = input("Due date (YYYY-MM-DD): ").strip().lower()
-            priority = input("Priority (low, medium, high): ").strip().lower()
-            if priority not in ['high', 'medium', 'low']:
-                raise ValueError("Priority must be 'high', 'medium', or 'low'.")
+                due_date = input("Invalid format. Enter due date (MM-DD-YYYY): ")
+            priority = input("Priority (high, medium, low): ").strip().lower()
+            if priority not in ["high", "medium", "low"]:
+                raise ValueError("Priority must be high, medium, or low.")
             task = Task(title, description, due_date, priority)
             self.tasks.append(task)
             print("Task added.")
@@ -104,7 +103,7 @@ class TaskManager:
         # Edit an existing task
         self.view_tasks()
         try:
-            index = int(input("Enter the task number to edit: ")) - 1
+            index = int(input("Enter the number of the task that you would like to edit: ")) - 1
             task = self.tasks[index]
             title = input(f"New title (or press enter to keep '{task.title}'): ") or task.title
             description = input(f"New description (or press enter to keep current): ") or task.description
@@ -116,73 +115,73 @@ class TaskManager:
             task.edit(title, description, due_date, priority)
             print("Task updated.")
         except (ValueError, IndexError):
-            print("Invalid task number. Please try again.")
+            print("Invalid input. Please enter a valid task number.")
 
     def delete_task(self):
         # Delete a task
         self.view_tasks()
         try:
-            index = int(input("Enter the task number to delete: ")) - 1
+            index = int(input("Enter the number of the task to delete: ")) - 1
             del self.tasks[index]
             print("Task deleted.")
         except (ValueError, IndexError):
-            print("Invalid task number. Please try again.")
+            print("Invalid input. Please enter a valid task number.")
 
-    def mark_completed(self):
+    def mark_task_completed(self):
         # Mark a task as completed
         self.view_tasks()
         try:
-            index = int(input("Enter the task number to mark as completed: ")) - 1
+            index = int(input("Enter the number of one of the following tasks to mark completed: ")) - 1
             self.tasks[index].mark_completed()
             print("Task marked as completed.")
         except (ValueError, IndexError):
             print("Invalid task number. Please try again.")
 
-        def fliter_tasks(self):
-            # Show only completed or incomplete tasks
-            status = input("Show completed or incomplete tasks? (c/i): ").strip().lower()
-            if status not in ["completed", "incomplete"]:
-                print("Invalid choice.")
-                return
-            filtered = [task for task in self.tasks if task.completed == (status == "completed")]
-            for task in filtered:
-                print(task)
+    def filter_tasks(self):
+        # Show only completed or incomplete tasks
+        status = input("Show (completed/incomplete): ").strip().lower()
+        if status not in ["completed", "incomplete"]:
+            print("Invalid choice.")
+            return
+        filtered = [task for task in self.tasks if task.completed == (status == "completed")]
+        for task in filtered:
+            print(task)
 
-            
-        # Main function provides a user interface loop
-        def main():
-            manager = TaskManager()
-            while True:
-                print("\nTo-Do Manager")
-                print("1. Add Task")
-                print("2. View Tasks")
-                print("3. Edit Task")
-                print("4. Delete Task")
-                print("5. Mark Task as Completed")
-                print("6. Filter Tasks")
-                print("7. Save and Exit")
-                choice = input("Choose an option: ").strip()
-                
-                if choice == '1':
-                    manager.add_task()
-                elif choice == '2':
-                    manager.view_tasks()
-                elif choice == '3':
-                    manager.edit_task()
-                elif choice == '4':
-                    manager.delete_task()
-                elif choice == '5':
-                    manager.mark_task_completed()
-                elif choice == '6':
-                    manager.filter_tasks()
-                elif choice == '7':
-                    manager.save_tasks()
-                    print("Tasks has been saved.")
-                    print("Exiting the program.")
-                    break
-                else:
-                    print("Invalid choice. Please try again.")
 
-        # Entry point for the program
-        if __name__ == "__main__":
-            main()
+# Main function provides a user interface loop
+def main():
+    manager = TaskManager()
+    while True:
+        print("\nTo-Do List Manager")
+        print("1. Add Task")
+        print("2. View Tasks")
+        print("3. Edit Task")
+        print("4. Delete Task")
+        print("5. Mark Task as Completed")
+        print("6. Filter Tasks")
+        print("7. Save and Exit")
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            manager.add_task()
+        elif choice == "2":
+            manager.view_tasks()
+        elif choice == "3":
+            manager.edit_task()
+        elif choice == "4":
+            manager.delete_task()
+        elif choice == "5":
+            manager.mark_task_completed()
+        elif choice == "6":
+            manager.filter_tasks()
+        elif choice == "7":
+            manager.save_tasks()
+            print("Tasks saved. Thank you so much for using our manager!")
+            break
+        else:
+            print("Invalid option. Try again.")
+
+
+# Entry point for the program
+if __name__ == "__main__":
+    main()
