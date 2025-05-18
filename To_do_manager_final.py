@@ -45,7 +45,7 @@ class Task:
     def __str__(self):
         # String representation of a task
         status = 'Completed' if self.completed else 'Not yet completed'
-        return f"{self.title} | Due: {self.due_data} | Priority: {self.priority} | Status: {status}"
+        return f"{self.title} | Due: {self.due_date} | Priority: {self.priority} | Status: {status}"
     
 # TaskManager class manages a list of tasks
 class TaskManager:
@@ -78,7 +78,7 @@ class TaskManager:
     def add_task(self, title, description, due_date, priority):
         # Add a new task to the list
         try:
-            title = imput("Title: ").strip()
+            title = input("Title: ").strip()
             description = input("Description: ").strip()
             due_date = input("Due date (YYYY-MM-DD): ").strip()
             while not self.validate_date(due_date):
@@ -109,7 +109,7 @@ class TaskManager:
             title = input(f"New title (or press enter to keep '{task.title}'): ") or task.title
             description = input(f"New description (or press enter to keep current): ") or task.description
             due_date = input(f"New due date (or press enter to keep '{task.due_date}'): ") or task.due_date
-            if not self.vaildate_date(due_date):
+            if not self.validate_date(due_date):
                 print("Invalid date format. Keeping original date.")
                 due_date = task.due_date
             priority = input(f"New priority (or press enter to keep '{task.priority}'): ") or task.priority
